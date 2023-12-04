@@ -16,13 +16,13 @@ public class Image implements Serializable {
     private String prompt;
     private String negative_prompt;
     private String model;
-    private String seed;
+    private int seed;
     private String step;
     private Long cfg_scale;
     private String url_image;
     private Float note;
-    private String height;
-    private String width;
+    private int height;
+    private int width;
     private boolean visible;
 
     @ManyToOne(optional = false)
@@ -43,7 +43,7 @@ public class Image implements Serializable {
     public String getModel() {
         return model;
     }
-    public String getSeed() {
+    public int getSeed() {
         return seed;
     }
     public String getStep() {
@@ -58,10 +58,10 @@ public class Image implements Serializable {
     public Float getNote() {
         return note;
     }
-    public String getHeight() {
+    public int getHeight() {
         return height;
     }
-    public String getWidth() {
+    public int getWidth() {
         return width;
     }
     public boolean isVisible() {
@@ -82,7 +82,7 @@ public class Image implements Serializable {
     public void setModel(String model) {
         this.model = model;
     }
-    public void setSeed(String seed) {
+    public void setSeed(int seed) {
         this.seed = seed;
     }
     public void setStep(String step) {
@@ -97,10 +97,10 @@ public class Image implements Serializable {
     public void setNote(Float note) {
         this.note = note;
     }
-    public void setHeight(String height) {
+    public void setHeight(int height) {
         this.height = height;
     }
-    public void setWidth(String width) {
+    public void setWidth(int width) {
         this.width = width;
     }
     public void setVisible(boolean visible) {

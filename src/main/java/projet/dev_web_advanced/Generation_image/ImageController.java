@@ -1,20 +1,25 @@
 package projet.dev_web_advanced.Generation_image;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import okhttp3.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.google.gson.Gson;
 
 public class ImageController {
 
     private ImageDAO dao;
+    private UserDAO userDAO;
     private CollectionDAO collection_DAO;
 
     @PostMapping("/api/image/getImage")
@@ -66,31 +71,76 @@ public class ImageController {
     }
 
     @PostMapping(value="/api/image/generate")
-    public ResponseEntity<Image> generateImage(@RequestBody Long userID, String instruction, String selectedButtons, String buttonLabelsByTab, int width, int height, String seed, int generationSteps, float guidanceScale) {
-        
+    public ResponseEntity<List<Image>> generateImages(@RequestBody Long userID, String instruction, String selectedButtons, String buttonLabelsByTab, int width, int height, int seed, int generationSteps, float guidanceScale) {
+
+
+        JsonObject requestGson = new JsonObject();
+
+        requestGson.addProperty("key", "");
+        requestGson.addProperty("model_id", "base-model");
+        requestGson.addProperty("prompt", instruction);
+        requestGson.addProperty("negative_prompt", "");
+        requestGson.addProperty("width", width);
+        requestGson.addProperty("height", height);
+        requestGson.addProperty("samples", 4);
+        requestGson.addProperty("num_inference_steps", generationSteps);
+        requestGson.addProperty("safety_checker", "no");
+        requestGson.addProperty("enhance_prompt", "yes");
+        requestGson.addProperty("seed", seed);
+        requestGson.addProperty("guidance_scale", guidanceScale);
+        requestGson.addProperty("multi_lingual", "no");
+        requestGson.addProperty("panorama", "no");
+        requestGson.addProperty("self_attention", "no");
+        requestGson.addProperty("upscale", "no");
+        requestGson.addProperty("embeddings_model", "embeddings_model_id");
+        requestGson.addProperty("lora_model", "lora_model_id");
+        requestGson.addProperty("tomesd", "yes");
+        requestGson.addProperty("clip_skip", "2");
+        requestGson.addProperty("use_karras_sigmas", "yes");
+        requestGson.add("vae", null);
+        requestGson.add("lora_strength", null);
+        requestGson.addProperty("scheduler", "UniPCMultistepScheduler");
+        requestGson.add("webhook", null);
+        requestGson.add("track_id", null);
+
         OkHttpClient client = new OkHttpClient().newBuilder().build();
-        MediaType mediaType = MediaType.parse("application/json");
-        okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "{\n    \"key\": Qun1A18qioEOi9p6QmEqkEENwPwePQbXnBibjSG5ujyACdyaiEYn4BZ0Dzdr\"\",\n  \"model_id\": \"base-model\",\n  \"prompt\": \"" + instruction + "\",\n  \"negative_prompt\": \"\",\n  \"width\": \"" + width + "\",\n  \"height\": \"" + height + "\",\n  \"samples\": \"4\",\n  \"num_inference_steps\": \"" + generationSteps + "\",\n  \"safety_checker\": \"no\",\n  \"enhance_prompt\": \"yes\",\n  \"seed\": \"" + seed + "\",\n  \"guidance_scale\": \"" + guidanceScale + "\",\n  \"multi_lingual\": \"no\",\n  \"panorama\": \"no\",\n  \"self_attention\": \"no\",\n  \"upscale\": \"no\",\n  \"embeddings_model\": \"embeddings_model_id\",\n  \"lora_model\": \"lora_model_id\",\n  \"tomesd\": \"yes\",\n  \"use_karras_sigmas\": \"yes\",\n  \"vae\": null,\n  \"lora_strength\": null,\n  \"scheduler\": \"UniPCMultistepScheduler\",\n  \"webhook\": null,\n  \"track_id\": null\n}");
-        Request request = new Request.Builder().url("https://stablediffusionapi.com/api/v4/dreambooth").method("POST", body).addHeader("Content-Type", "application/json").build();
-        
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(requestGson.toString(), MediaType.parse("application/json"));
+        Request request = new Request.Builder()
+                .url("https://stablediffusionapi.com/api/v4/dreambooth")
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
         try {
             Response response = client.newCall(request).execute();
-            String resp = response.body().string();
-            
-        }
-        catch(Exception e) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonObject responseJson = mapper.readValue(Objects.requireNonNull(response.body()).string(), JsonObject.class);
+
+            List<Image> images = new ArrayList<>();
+
+            JsonArray respUrls = responseJson.getAsJsonArray("output");
+
+            for (JsonElement respUrl : respUrls) {
+                Image newImage = new Image();
+                newImage.setCreator(userDAO.getUser(userID));
+                newImage.setPrompt(instruction);
+                newImage.setNegative_prompt("");
+                newImage.setModel("");
+                newImage.setSeed(seed);
+                newImage.setCfg_scale(newImage.getCfg_scale());
+                newImage.setUrl_image(respUrl.toString());
+                newImage.setNote(null);
+                newImage.setHeight(height);
+                newImage.setWidth(width);
+                newImage.setVisible(true);
+
+                images.add(newImage);
+            }
+
+            return ResponseEntity.ok(images);
+
+        } catch(Exception e) {
             return ResponseEntity.notFound().build();
         }
-        
-        /*String url = "";
-        Image newImage = new Image();
-        newImage.setCreator(user);
-        newImage.setPrompt(instruction);
-        //TODO: other fields
 
-        dao.createImage(newImage);
-
-        return ResponseEntity.ok(new Image());*/
     }
-
 }
