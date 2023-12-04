@@ -1,11 +1,16 @@
 package projet.dev_web_advanced.Generation_image;
 
 import java.util.List;
-import java.util.Map;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ImageController {
 
@@ -61,8 +66,23 @@ public class ImageController {
     }
 
     @PostMapping(value="/api/image/generate")
-    public ResponseEntity<Image> generateImage(@RequestBody User user, String instruction, String selectedButtons, String buttonLabelsByTab, int width, int height, String seed, int generationSteps, float guidanceScale) {
-        String url = "";
+    public ResponseEntity<Image> generateImage(@RequestBody Long userID, String instruction, String selectedButtons, String buttonLabelsByTab, int width, int height, String seed, int generationSteps, float guidanceScale) {
+        
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("application/json");
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "{\n    \"key\": Qun1A18qioEOi9p6QmEqkEENwPwePQbXnBibjSG5ujyACdyaiEYn4BZ0Dzdr\"\",\n  \"model_id\": \"base-model\",\n  \"prompt\": \"" + instruction + "\",\n  \"negative_prompt\": \"\",\n  \"width\": \"" + width + "\",\n  \"height\": \"" + height + "\",\n  \"samples\": \"4\",\n  \"num_inference_steps\": \"" + generationSteps + "\",\n  \"safety_checker\": \"no\",\n  \"enhance_prompt\": \"yes\",\n  \"seed\": \"" + seed + "\",\n  \"guidance_scale\": \"" + guidanceScale + "\",\n  \"multi_lingual\": \"no\",\n  \"panorama\": \"no\",\n  \"self_attention\": \"no\",\n  \"upscale\": \"no\",\n  \"embeddings_model\": \"embeddings_model_id\",\n  \"lora_model\": \"lora_model_id\",\n  \"tomesd\": \"yes\",\n  \"use_karras_sigmas\": \"yes\",\n  \"vae\": null,\n  \"lora_strength\": null,\n  \"scheduler\": \"UniPCMultistepScheduler\",\n  \"webhook\": null,\n  \"track_id\": null\n}");
+        Request request = new Request.Builder().url("https://stablediffusionapi.com/api/v4/dreambooth").method("POST", body).addHeader("Content-Type", "application/json").build();
+        
+        try {
+            Response response = client.newCall(request).execute();
+            String resp = response.body().string();
+            
+        }
+        catch(Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        /*String url = "";
         Image newImage = new Image();
         newImage.setCreator(user);
         newImage.setPrompt(instruction);
@@ -70,7 +90,7 @@ public class ImageController {
 
         dao.createImage(newImage);
 
-        return ResponseEntity.ok(new Image());
+        return ResponseEntity.ok(new Image());*/
     }
 
 }

@@ -17,8 +17,8 @@ public class UserController {
         u.setMail_adress(mail_adress);
         u.setName(name);
         u.setPassword(password);
-        dao.createUser(u);
-        if(u != null) {
+        Long id = dao.createUser(u);
+        if(id != null) {
             return ResponseEntity.ok(u);
         }
         else {

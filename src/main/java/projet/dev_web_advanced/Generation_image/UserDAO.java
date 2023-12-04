@@ -14,9 +14,10 @@ public class UserDAO {
     @Autowired
     private SessionFactory sessionFactory;
 
-    public void createUser(User newUser) {
+    public Long createUser(User newUser) {
         Session session = this.sessionFactory.getCurrentSession();
         session.persist(newUser);
+        return newUser.getId();
     }
 
     public void modifyUser(User u) {
