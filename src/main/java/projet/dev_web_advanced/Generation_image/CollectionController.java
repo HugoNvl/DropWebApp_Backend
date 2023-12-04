@@ -38,9 +38,13 @@ public class CollectionController {
         Collection col = new Collection();
         col.setName(name);
         col.setCreator(user_DAO.getUser(Id_creator));
-        dao.createCollection(col);
-        Collection new_col = dao.getCollection(col.getId());
-        return ResponseEntity.ok(new_col);
+        try {
+            dao.createCollection(col);
+            Collection new_col = dao.getCollection(col.getId());
+            return ResponseEntity.ok(new_col);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @PostMapping(value="api/collection/deleteCollection")

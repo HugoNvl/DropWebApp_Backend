@@ -17,12 +17,11 @@ public class UserController {
         u.setMail_adress(mail_adress);
         u.setName(name);
         u.setPassword(password);
-        dao.createUser(u);
-        if(u != null) {
+        try{
+            dao.createUser(u);
             return ResponseEntity.ok(u);
-        }
-        else {
-            return ResponseEntity.noContent().build();
+        } catch(Exception e) {
+            return ResponseEntity.status(500).body(null);
         }
     }
 
