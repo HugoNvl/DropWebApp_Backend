@@ -36,10 +36,10 @@ public class CollectionDAO {
         return c;
     }
 
-    public List<Collection> findCollection(User creator) {
+    public List<Collection> findCollection(Long userID) {
         Session session = this.sessionFactory.getCurrentSession();
-        Query<Collection> query = session.createQuery("FROM Collection c WHERE c.creator LIKE :creator", Collection.class);
-        query.setParameter("creator", creator);
+        Query<Collection> query = session.createQuery("FROM Collection c WHERE c.creator.id LIKE :userID", Collection.class);
+        query.setParameter("userID", userID);
         return query.getResultList();
     }
 }

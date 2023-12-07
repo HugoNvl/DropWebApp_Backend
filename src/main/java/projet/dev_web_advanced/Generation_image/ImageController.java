@@ -9,12 +9,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import okhttp3.*;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import com.google.gson.Gson;
 
 public class ImageController {
 
@@ -34,8 +31,15 @@ public class ImageController {
     }
 
     @PostMapping(value="/api/image/setImage")
-    public void setImage(@RequestBody Image i) {
+    public ResponseEntity<Image> setImage(@RequestBody Image i) {
         dao.modifyImage(i);
+        Image imageUpdated = dao.getImage(i.getId());
+        if(imageUpdated != null) {
+            return ResponseEntity.ok(imageUpdated);
+        }
+        else {
+            return ResponseEntity.noContent().build();
+        }
     }
 
     @PostMapping(value="/api/image/addImageToCollection")

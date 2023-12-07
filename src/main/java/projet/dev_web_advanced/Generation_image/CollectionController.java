@@ -48,23 +48,13 @@ public class CollectionController {
     }
 
     @PostMapping(value="api/collection/deleteCollection")
-    public ResponseEntity<String> deleteCollection(@RequestBody Collection col) {
-        dao.deleteCollection(col);
-        Collection deleted = dao.getCollection(col.getId());
+    public ResponseEntity<String> deleteCollection(@RequestBody Long id) {
+        dao.deleteCollection(dao.getCollection(id));
+        Collection deleted = dao.getCollection(id);
         if (deleted == null) {
             return ResponseEntity.ok("Collection successfully deleted");
         } else {
             return ResponseEntity.status(500).body("Connection not deleted");
-        }
-    }
-
-    @PostMapping(value="api/collection/findCollection")
-    public ResponseEntity<List<Collection>> findCollection(@RequestBody Long Id_creator) {
-        List<Collection> list = dao.findCollection(user_DAO.getUser(Id_creator));
-        if (list != null) {
-            return ResponseEntity.ok(list);
-        } else {
-            return ResponseEntity.notFound().build();
         }
     }
 

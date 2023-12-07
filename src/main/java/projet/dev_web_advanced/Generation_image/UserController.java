@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class UserController {
 
     private UserDAO dao;
+    private CollectionDAO collection_dao;
 
     @PostMapping(value="api/user/createAccount")
     public ResponseEntity<User> createAccount(@RequestBody String mail_adress, String name, String password) {
@@ -46,8 +47,7 @@ public class UserController {
 
     @PostMapping(value="api/user/getUserCollections")
     public ResponseEntity<List<Collection>> getUserCollections(@RequestBody Long id) {
-        User user = dao.getUser(id);
-        List<Collection> list_collections = user.getCollections();
+        List<Collection> list_collections = collection_dao.findCollection(id);
         if(list_collections != null) {
             return ResponseEntity.ok(list_collections);
         }
@@ -81,9 +81,9 @@ public class UserController {
     }
 
     @PostMapping(value="api/user/deleteUser")
-    public ResponseEntity<String> deleteUser(@RequestBody User u) {
-        dao.deleteUser(u);
-        User user = dao.getUser(u.getId());
+    public ResponseEntity<String> deleteUser(@RequestBody Long id) {
+        dao.deleteUser(dao.getUser(id));
+        User user = dao.getUser(id);
         if(user == null) {
             return ResponseEntity.ok("Account deleted with success");
         }
