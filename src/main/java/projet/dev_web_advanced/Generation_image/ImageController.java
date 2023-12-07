@@ -32,19 +32,18 @@ public class ImageController {
         }
     }
 
-    @PostMapping(value="/api/image/setImage")
+    @PostMapping(value = "/api/image/setImage")
     public ResponseEntity<Image> setImage(@RequestBody Image i) {
         dao.modifyImage(i);
         Image imageUpdated = dao.getImage(i.getId());
-        if(imageUpdated != null) {
+        if (imageUpdated != null) {
             return ResponseEntity.ok(imageUpdated);
-        }
-        else {
+        } else {
             return ResponseEntity.noContent().build();
         }
     }
 
-    @PostMapping(value="/api/image/addImageToCollection")
+    @PostMapping(value = "/api/image/addImageToCollection")
     public ResponseEntity<String> addImageToCollection(@RequestBody Long Id_collection, Long Id_image) {
         Image i = dao.getImage(Id_image);
         Collection c = collection_DAO.getCollection(Id_collection);
@@ -53,14 +52,14 @@ public class ImageController {
         list_image.add(i);
         c.setList_images(list_image);
         collection_DAO.modifyCollection(c);
-        if (length == list_image.size()-1) {
+        if (length == list_image.size() - 1) {
             return ResponseEntity.ok("Image added");
         } else {
             return ResponseEntity.status(500).body("An error occured");
         }
     }
 
-    @PostMapping(value="/api/image/removeImageFromCollection")
+    @PostMapping(value = "/api/image/removeImageFromCollection")
     public ResponseEntity<String> removeImageFromCollection(@RequestBody Long Id_collection, Long Id_image) {
         Image i = dao.getImage(Id_image);
         Collection c = collection_DAO.getCollection(Id_collection);
@@ -69,30 +68,42 @@ public class ImageController {
         list_image.remove(i);
         c.setList_images(list_image);
         collection_DAO.modifyCollection(c);
-        if (length == list_image.size()+1) {
+        if (length == list_image.size() + 1) {
             return ResponseEntity.ok("Image removed");
         } else {
             return ResponseEntity.status(500).body("An error occured");
         }
     }
+    /*
+     * public ResponseEntity<List<Image>> generateImages(@RequestBody String userID,
+     * String instruction,
+     * String selectedButtons, String buttonLabelsByTab, String imageWidth, Number
+     * height, String seed,
+     * Number generationSteps, Number guidanceScale) {
+     */
 
-    @PostMapping(value="/api/image/generate")
-    public ResponseEntity<List<Image>> generateImages(@RequestBody Long userID, String instruction, String selectedButtons, String buttonLabelsByTab, int width, int height, int seed, int generationSteps, float guidanceScale) {
+    public record FormulaireEnvoie(String userID, String instruction,
+            String selectedButtons, String buttonLabelsByTab, Number width, Number height, String seed,
+            Number generationSteps, Number guidanceScale) {
+    }
 
+    @PostMapping(value = "/api/image/generate")
+    public ResponseEntity<List<Image>> generateImages(@RequestBody FormulaireEnvoie formulaireEnvoi) {
 
         JsonObject requestGson = new JsonObject();
 
-        requestGson.addProperty("key", "");
+        requestGson.addProperty("key", "Qun1A18qioEOi9p6QmEqkEENwPwePQbXnBibjSG5ujyACdyaiEYn4BZ0Dzdr");
         requestGson.addProperty("model_id", "base-model");
-        requestGson.addProperty("prompt", instruction);
+        requestGson.addProperty("prompt", formulaireEnvoi.instruction);
         requestGson.addProperty("negative_prompt", "");
-        requestGson.addProperty("width", width);
-        requestGson.addProperty("height", height);
-        requestGson.addProperty("samples", 4);
-        requestGson.addProperty("num_inference_steps", generationSteps);
+        System.out.println(formulaireEnvoi.width);
+        /*requestGson.addProperty("width", formulaireEnvoi.width.toString());
+        requestGson.addProperty("height", height.toString());
+        requestGson.addProperty("samples", "4");
+        requestGson.addProperty("num_inference_steps", generationSteps.toString());
         requestGson.addProperty("safety_checker", "no");
         requestGson.addProperty("enhance_prompt", "yes");
-        requestGson.addProperty("seed", seed);
+        requestGson.addProperty("seed", seed.toString());
         requestGson.addProperty("guidance_scale", guidanceScale);
         requestGson.addProperty("multi_lingual", "no");
         requestGson.addProperty("panorama", "no");
@@ -107,27 +118,33 @@ public class ImageController {
         requestGson.add("lora_strength", null);
         requestGson.addProperty("scheduler", "UniPCMultistepScheduler");
         requestGson.add("webhook", null);
-        requestGson.add("track_id", null);
+        requestGson.add("track_id", null);*/
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
-        okhttp3.RequestBody body = okhttp3.RequestBody.create(requestGson.toString(), MediaType.parse("application/json"));
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(requestGson.toString(),
+                MediaType.parse("application/json"));
         Request request = new Request.Builder()
                 .url("https://stablediffusionapi.com/api/v4/dreambooth")
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
         try {
+
+            System.out.println("avant");
             Response response = client.newCall(request).execute();
+            response.wait();
+            System.out.println("après");
             ObjectMapper mapper = new ObjectMapper();
-            JsonObject responseJson = mapper.readValue(Objects.requireNonNull(response.body()).string(), JsonObject.class);
+            JsonObject responseJson = mapper.readValue(Objects.requireNonNull(response.body()).string(),
+                    JsonObject.class);
 
             List<Image> images = new ArrayList<>();
 
             JsonArray respUrls = responseJson.getAsJsonArray("output");
 
-            for (JsonElement respUrl : respUrls) {
+            /*for (JsonElement respUrl : respUrls) {
                 Image newImage = new Image();
-                newImage.setCreator(userDAO.getUser(userID));
+                newImage.setCreator(userDAO.getUser(Long.parseLong(userID)));
                 newImage.setPrompt(instruction);
                 newImage.setNegative_prompt("");
                 newImage.setModel("");
@@ -135,16 +152,17 @@ public class ImageController {
                 newImage.setCfg_scale(newImage.getCfg_scale());
                 newImage.setUrl_image(respUrl.toString());
                 newImage.setNote(null);
-                newImage.setHeight(height);
-                newImage.setWidth(width);
+                newImage.setHeight(height.intValue());
+                newImage.setWidth(width); 
                 newImage.setVisible(true);
 
                 images.add(newImage);
-            }
-
+            }*/
+            System.out.println("Ok");
             return ResponseEntity.ok(images);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.notFound().build();
         }
 

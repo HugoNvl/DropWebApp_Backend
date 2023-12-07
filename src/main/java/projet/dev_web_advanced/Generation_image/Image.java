@@ -16,7 +16,7 @@ public class Image implements Serializable {
     private String prompt;
     private String negative_prompt;
     private String model;
-    private int seed;
+    private String seed;
     private String step;
     private Long cfg_scale;
     private String url_image;
@@ -43,7 +43,7 @@ public class Image implements Serializable {
     public String getModel() {
         return model;
     }
-    public int getSeed() {
+    public String getSeed() {
         return seed;
     }
     public String getStep() {
@@ -82,7 +82,7 @@ public class Image implements Serializable {
     public void setModel(String model) {
         this.model = model;
     }
-    public void setSeed(int seed) {
+    public void setSeed(String seed) {
         this.seed = seed;
     }
     public void setStep(String step) {
