@@ -3,11 +3,14 @@ package projet.dev_web_advanced.Generation_image;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import okhttp3.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,7 +86,7 @@ public class ImageController {
      */
 
     public record FormulaireEnvoie(String userID, String instruction,
-            String selectedButtons, String buttonLabelsByTab, Number width, Number height, String seed,
+            ArrayList<String> selectedButtons, Number imageWidth, Number imageHeight, String seed,
             Number generationSteps, Number guidanceScale) {
     }
 
@@ -96,21 +99,24 @@ public class ImageController {
         requestGson.addProperty("model_id", "base-model");
         requestGson.addProperty("prompt", formulaireEnvoi.instruction);
         requestGson.addProperty("negative_prompt", "");
-        System.out.println(formulaireEnvoi.width);
-        /*requestGson.addProperty("width", formulaireEnvoi.width.toString());
-        requestGson.addProperty("height", height.toString());
+        requestGson.addProperty("width", formulaireEnvoi.imageWidth.toString());
+        requestGson.addProperty("height", formulaireEnvoi.imageHeight.toString());
         requestGson.addProperty("samples", "4");
-        requestGson.addProperty("num_inference_steps", generationSteps.toString());
+        requestGson.addProperty("num_inference_steps", formulaireEnvoi.generationSteps.toString());
         requestGson.addProperty("safety_checker", "no");
         requestGson.addProperty("enhance_prompt", "yes");
-        requestGson.addProperty("seed", seed.toString());
-        requestGson.addProperty("guidance_scale", guidanceScale);
+        if (formulaireEnvoi.seed == null) {
+            requestGson.add("seed", null);
+        } else {
+            requestGson.addProperty("seed", formulaireEnvoi.seed);
+        }
+        requestGson.addProperty("guidance_scale", formulaireEnvoi.guidanceScale);
         requestGson.addProperty("multi_lingual", "no");
         requestGson.addProperty("panorama", "no");
         requestGson.addProperty("self_attention", "no");
         requestGson.addProperty("upscale", "no");
-        requestGson.addProperty("embeddings_model", "embeddings_model_id");
-        requestGson.addProperty("lora_model", "lora_model_id");
+        requestGson.add("embeddings_model", null);
+        requestGson.addProperty("lora_model", "japanese-style");
         requestGson.addProperty("tomesd", "yes");
         requestGson.addProperty("clip_skip", "2");
         requestGson.addProperty("use_karras_sigmas", "yes");
@@ -118,9 +124,12 @@ public class ImageController {
         requestGson.add("lora_strength", null);
         requestGson.addProperty("scheduler", "UniPCMultistepScheduler");
         requestGson.add("webhook", null);
-        requestGson.add("track_id", null);*/
+        requestGson.add("track_id", null);
 
-        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .readTimeout(120, TimeUnit.SECONDS)
+                .build();
+
         okhttp3.RequestBody body = okhttp3.RequestBody.create(requestGson.toString(),
                 MediaType.parse("application/json"));
         Request request = new Request.Builder()
@@ -129,39 +138,46 @@ public class ImageController {
                 .addHeader("Content-Type", "application/json")
                 .build();
         try {
-
             System.out.println("avant");
             Response response = client.newCall(request).execute();
-            response.wait();
-            System.out.println("après");
-            ObjectMapper mapper = new ObjectMapper();
-            JsonObject responseJson = mapper.readValue(Objects.requireNonNull(response.body()).string(),
-                    JsonObject.class);
+            String resp = response.body().string();
+            JsonObject responseJson = JsonParser.parseString(resp).getAsJsonObject();
 
             List<Image> images = new ArrayList<>();
 
-            JsonArray respUrls = responseJson.getAsJsonArray("output");
+            JsonArray respUrls;
+            String status = responseJson.get("status").toString();
+            System.out.println(status);
+            if (status.contains("processing")) {
+                respUrls = responseJson.getAsJsonArray("future_links");
+            } else if (status.contains("success")) {
+                respUrls = responseJson.getAsJsonArray("output");
+            } else {
+                throw (new Exception("Error in API call"));
+            }
 
-            /*for (JsonElement respUrl : respUrls) {
+            for (JsonElement respUrl : respUrls) {
                 Image newImage = new Image();
-                newImage.setCreator(userDAO.getUser(Long.parseLong(userID)));
-                newImage.setPrompt(instruction);
+                newImage.setCreator(userDAO.getUser(Long.parseLong(formulaireEnvoi.userID)));
+                newImage.setPrompt(formulaireEnvoi.instruction);
                 newImage.setNegative_prompt("");
                 newImage.setModel("");
-                newImage.setSeed(seed);
+                newImage.setSeed(formulaireEnvoi.seed);
                 newImage.setCfg_scale(newImage.getCfg_scale());
-                newImage.setUrl_image(respUrl.toString());
+                newImage.setUrl_image(respUrl.toString().replace("\\", ""));
                 newImage.setNote(null);
-                newImage.setHeight(height.intValue());
-                newImage.setWidth(width); 
+                newImage.setHeight(formulaireEnvoi.imageHeight.intValue());
+                newImage.setWidth(formulaireEnvoi.imageWidth.intValue());
                 newImage.setVisible(true);
-
+                dao.createImage(newImage);
                 images.add(newImage);
-            }*/
-            System.out.println("Ok");
+            }
+            System.out.println("Image créée\n");
             return ResponseEntity.ok(images);
 
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             e.printStackTrace();
             return ResponseEntity.notFound().build();
         }
