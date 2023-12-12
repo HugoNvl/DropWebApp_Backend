@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    private UserDAO dao;
-    private CollectionDAO collection_dao;
+    private UserDAO dao = new UserDAO();
+    private CollectionDAO collection_dao = new CollectionDAO();
 
     @PostMapping(value="api/user/createAccount")
     public ResponseEntity<User> createAccount(@RequestBody String mail_adress, String name, String password) {

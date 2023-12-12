@@ -2,10 +2,8 @@ package projet.dev_web_advanced.Generation_image;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ImageController {
 
-    private ImageDAO dao;
-    private UserDAO userDAO;
+    private ImageDAO dao = new ImageDAO();
+    private UserDAO userDAO = new UserDAO();
     private CollectionDAO collection_DAO;
 
     @PostMapping("/api/image/getImage")
@@ -77,13 +75,7 @@ public class ImageController {
             return ResponseEntity.status(500).body("An error occured");
         }
     }
-    /*
-     * public ResponseEntity<List<Image>> generateImages(@RequestBody String userID,
-     * String instruction,
-     * String selectedButtons, String buttonLabelsByTab, String imageWidth, Number
-     * height, String seed,
-     * Number generationSteps, Number guidanceScale) {
-     */
+    
 
     public record FormulaireEnvoie(String userID, String instruction,
             ArrayList<String> selectedButtons, Number imageWidth, Number imageHeight, String seed,
@@ -143,7 +135,7 @@ public class ImageController {
             String resp = response.body().string();
             JsonObject responseJson = JsonParser.parseString(resp).getAsJsonObject();
 
-            List<Image> images = new ArrayList<>();
+            List<Image> images = new ArrayList<Image>();
 
             JsonArray respUrls;
             String status = responseJson.get("status").toString();

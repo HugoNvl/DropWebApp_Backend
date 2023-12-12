@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CollectionController {
     
-    private CollectionDAO dao;
-    private UserDAO user_DAO;
-    private ImageDAO image_DAO;
+    private CollectionDAO dao = new CollectionDAO();
+    private UserDAO user_DAO = new UserDAO();
+    private ImageDAO image_DAO = new ImageDAO();
 
     @PostMapping(value="api/collection/getCollection")
     public ResponseEntity<Collection> getCollection(@RequestBody Long Id_collection) {
