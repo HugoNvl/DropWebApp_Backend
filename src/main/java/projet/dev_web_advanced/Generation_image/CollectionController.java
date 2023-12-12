@@ -2,6 +2,7 @@ package projet.dev_web_advanced.Generation_image;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,8 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CollectionController {
     
+    @Autowired
     private CollectionDAO dao = new CollectionDAO();
+    @Autowired
     private UserDAO user_DAO = new UserDAO();
+    @Autowired
     private ImageDAO image_DAO = new ImageDAO();
 
     @PostMapping(value="api/collection/getCollection")

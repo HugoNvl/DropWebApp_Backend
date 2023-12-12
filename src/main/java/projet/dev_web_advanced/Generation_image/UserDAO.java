@@ -1,7 +1,10 @@
 package projet.dev_web_advanced.Generation_image;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
+
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -34,14 +37,18 @@ public class UserDAO {
         Session session = this.sessionFactory.getCurrentSession();
         Query<User> q = session.createQuery("FROM User u WHERE u.id = :id", User.class);
         q.setParameter("id", Id);
+        System.out.println(q.getResultList().get(0).getClass().getName());
         return q.getResultList().get(0);
     }
 
     public User getUser(String username, String password) {
         Session session = this.sessionFactory.getCurrentSession();
+             
         Query<User> q = session.createQuery("FROM User u WHERE u.name = :name AND u.password = :password", User.class);
         q.setParameter("name", username);
         q.setParameter("password", password);
-        return q.getResultList().get(0);
+        User u = q.getResultList().get(0);
+        return u;
+        
     }
 }

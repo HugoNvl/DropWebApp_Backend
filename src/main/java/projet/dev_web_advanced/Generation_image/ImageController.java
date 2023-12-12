@@ -10,6 +10,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import okhttp3.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,9 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ImageController {
 
+    @Autowired
     private ImageDAO dao = new ImageDAO();
+    @Autowired
     private UserDAO userDAO = new UserDAO();
-    private CollectionDAO collection_DAO;
+    @Autowired
+    private CollectionDAO collection_DAO = new CollectionDAO();
 
     @PostMapping("/api/image/getImage")
     public ResponseEntity<Image> getImage(@RequestBody Long id) {
@@ -130,7 +135,6 @@ public class ImageController {
                 .addHeader("Content-Type", "application/json")
                 .build();
         try {
-            System.out.println("avant");
             Response response = client.newCall(request).execute();
             String resp = response.body().string();
             JsonObject responseJson = JsonParser.parseString(resp).getAsJsonObject();
@@ -139,7 +143,6 @@ public class ImageController {
 
             JsonArray respUrls;
             String status = responseJson.get("status").toString();
-            System.out.println(status);
             if (status.contains("processing")) {
                 respUrls = responseJson.getAsJsonArray("future_links");
             } else if (status.contains("success")) {
@@ -164,7 +167,6 @@ public class ImageController {
                 dao.createImage(newImage);
                 images.add(newImage);
             }
-            System.out.println("Image créée\n");
             return ResponseEntity.ok(images);
 
         } catch (
