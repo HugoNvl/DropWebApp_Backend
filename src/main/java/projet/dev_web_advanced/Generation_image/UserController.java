@@ -65,8 +65,8 @@ public class UserController {
     }
 
     @PostMapping(value="api/user/getUserImages")
-    public ResponseEntity<List<Image>> getUserImages(@RequestBody Long id) {
-        User user = dao.getUser(id);
+    public ResponseEntity<List<Image>> getUserImages(@RequestBody String id) {
+        User user = dao.getUser(Long.parseLong(id));
         List<Image> list_images = image_dao.getImage(user);
         if(list_images != null) {
             return ResponseEntity.ok(list_images);

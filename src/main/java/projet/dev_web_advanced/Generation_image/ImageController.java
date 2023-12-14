@@ -44,6 +44,7 @@ public class ImageController {
         for(Image i : dao.getAllImages()) {
             if(i.isVisible()) {
                 list_images.add(i);
+                System.out.println(i.getUrl_image());
             }
         }
         return ResponseEntity.ok(list_images);
@@ -170,8 +171,9 @@ public class ImageController {
                 newImage.setNegative_prompt("");
                 newImage.setModel("");
                 newImage.setSeed(formulaireEnvoi.seed);
+                newImage.setStep(formulaireEnvoi.generationSteps.toString());
                 newImage.setCfg_scale(newImage.getCfg_scale());
-                newImage.setUrl_image(respUrl.toString().replace("\\", ""));
+                newImage.setUrl_image(respUrl.toString());
                 newImage.setNote(null);
                 newImage.setHeight(formulaireEnvoi.imageHeight.intValue());
                 newImage.setWidth(formulaireEnvoi.imageWidth.intValue());
