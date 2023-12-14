@@ -5,8 +5,10 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
@@ -21,10 +23,7 @@ public class User implements Serializable {
     private String mail_adress;
     private boolean connected;
 
-    @OneToMany(mappedBy = "creator")
-    private List<Image> images_created;
-
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private List<Collection> collections_created;
     
     public Long getId() {
@@ -58,12 +57,12 @@ public class User implements Serializable {
         this.connected = connected;
     }
 
-    public List<Image> getImages()  {
+    /*public Set<Image> getImages()  {
         return images_created;
     }
-    public void setImages(List<Image> list_images) {
+    public void setImages(Set<Image> list_images) {
         images_created = list_images;
-    }
+    }*/
     public List<Collection> getCollections() {
         return collections_created;
     }

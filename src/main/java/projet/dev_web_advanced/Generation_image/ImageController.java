@@ -134,6 +134,7 @@ public class ImageController {
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
+
         try {
             Response response = client.newCall(request).execute();
             String resp = response.body().string();
@@ -167,6 +168,7 @@ public class ImageController {
                 dao.createImage(newImage);
                 images.add(newImage);
             }
+            System.out.println(images);
             return ResponseEntity.ok(images);
 
         } catch (

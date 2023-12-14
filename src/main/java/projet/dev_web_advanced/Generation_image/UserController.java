@@ -1,6 +1,7 @@
 package projet.dev_web_advanced.Generation_image;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ public class UserController {
     private UserDAO dao = new UserDAO();
     @Autowired
     private CollectionDAO collection_dao = new CollectionDAO();
+    @Autowired
+    private ImageDAO image_dao = new ImageDAO();
 
     @PostMapping(value="api/user/createAccount")
     public ResponseEntity<User> createAccount(@RequestBody String mail_adress, String name, String password) {
@@ -64,7 +67,7 @@ public class UserController {
     @PostMapping(value="api/user/getUserImages")
     public ResponseEntity<List<Image>> getUserImages(@RequestBody Long id) {
         User user = dao.getUser(id);
-        List<Image> list_images = user.getImages();
+        List<Image> list_images = image_dao.getImage(user);
         if(list_images != null) {
             return ResponseEntity.ok(list_images);
         }
