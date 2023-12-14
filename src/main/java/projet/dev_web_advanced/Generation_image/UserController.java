@@ -1,5 +1,6 @@
 package projet.dev_web_advanced.Generation_image;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -20,82 +21,77 @@ public class UserController {
     @Autowired
     private ImageDAO image_dao = new ImageDAO();
 
-    @PostMapping(value="api/user/createAccount")
+    @PostMapping(value = "api/user/createAccount")
     public ResponseEntity<User> createAccount(@RequestBody String mail_adress, String name, String password) {
         User u = new User();
         u.setMail_adress(mail_adress);
         u.setName(name);
         u.setPassword(password);
-        try{
+        try {
             dao.createUser(u);
             return ResponseEntity.ok(u);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
     }
 
-    @PostMapping(value="api/user/connect")
+    @PostMapping(value = "api/user/connect")
     public ResponseEntity<User> connect(@RequestBody String username, String password) {
         User u = dao.getUser(username, password);
-        if(u != null) {
+        if (u != null) {
             return ResponseEntity.ok(u);
-        }
-        else {
+        } else {
             return ResponseEntity.noContent().build();
         }
     }
 
-    @GetMapping(value="api/user/disconnect")
+    @GetMapping(value = "api/user/disconnect")
     public void disconnect(@RequestBody Long id) {
         User u = dao.getUser(id);
         u.setConnected(false);
-        dao.modifyUser(u);        
+        dao.modifyUser(u);
     }
-    
 
-    @PostMapping(value="api/user/getUserCollections")
+    @PostMapping(value = "api/user/getUserCollections")
     public ResponseEntity<List<Collection>> getUserCollections(@RequestBody Long id) {
         List<Collection> list_collections = collection_dao.findCollection(id);
-        if(list_collections != null) {
+        if (list_collections != null) {
             return ResponseEntity.ok(list_collections);
-        }
-        else {
+        } else {
             return ResponseEntity.noContent().build();
         }
     }
 
-    @PostMapping(value="api/user/getUserImages")
-    public ResponseEntity<List<Image>> getUserImages(@RequestBody String id) {
-        User user = dao.getUser(Long.parseLong(id));
+    @PostMapping(value = "api/user/getUserImages")
+    public ResponseEntity<List<Image>> getUserImages(@RequestBody String userID) {
+        User user = dao.getUser(Long.parseLong(userID));
         List<Image> list_images = image_dao.getImage(user);
-        if(list_images != null) {
+        if (list_images != null) {
             return ResponseEntity.ok(list_images);
-        }
-        else {
+        } else {
             return ResponseEntity.noContent().build();
         }
     }
 
-    @PostMapping(value="api/user/modifyUser")
+    @PostMapping(value = "api/user/modifyUser")
     public ResponseEntity<User> modifyUser(@RequestBody User u) {
         dao.modifyUser(u);
         User userUpdated = dao.getUser(u.getId());
-        if(userUpdated != null) {
+        if (userUpdated != null) {
             return ResponseEntity.ok(userUpdated);
-        }
-        else {
+        } else {
             return ResponseEntity.noContent().build();
         }
     }
 
-    @PostMapping(value="api/user/deleteUser")
-    public ResponseEntity<String> deleteUser(@RequestBody Long id) {
-        dao.deleteUser(dao.getUser(id));
-        User user = dao.getUser(id);
-        if(user == null) {
+    @PostMapping(value = "api/user/deleteUser")
+    public ResponseEntity<String> deleteUser(@RequestBody String id) {
+        dao.deleteUser(dao.getUser(Long.parseLong(id)));
+        User user = dao.getUser(Long.parseLong(id));
+        if (user == null) {
             return ResponseEntity.ok("Account deleted with success");
+        } else {
+            return ResponseEntity.status(500).body("An error occured");
         }
-        else {
-            return ResponseEntity.status(500).body("An error occured");}
     }
 }
