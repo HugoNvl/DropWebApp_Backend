@@ -40,9 +40,9 @@ public class ImageController {
 
     @PostMapping("/api/image/getImagesCommunity")
     public ResponseEntity<List<Image>> getImagesCommunity() {
-        List<Image> list_images = new ArrayList<Image>(); 
-        for(Image i : dao.getAllImages()) {
-            if(i.isVisible()) {
+        List<Image> list_images = new ArrayList<Image>();
+        for (Image i : dao.getAllImages()) {
+            if (i.isVisible()) {
                 list_images.add(i);
                 System.out.println(i.getUrl_image());
             }
@@ -92,7 +92,6 @@ public class ImageController {
             return ResponseEntity.status(500).body("An error occured");
         }
     }
-    
 
     public record FormulaireEnvoie(String userID, String instruction,
             ArrayList<String> selectedButtons, Number imageWidth, Number imageHeight, String seed,
@@ -173,7 +172,7 @@ public class ImageController {
                 newImage.setSeed(formulaireEnvoi.seed);
                 newImage.setStep(formulaireEnvoi.generationSteps.toString());
                 newImage.setCfg_scale(newImage.getCfg_scale());
-                newImage.setUrl_image(respUrl.toString());
+                newImage.setUrl_image(respUrl.getAsString());
                 newImage.setNote(null);
                 newImage.setHeight(formulaireEnvoi.imageHeight.intValue());
                 newImage.setWidth(formulaireEnvoi.imageWidth.intValue());
