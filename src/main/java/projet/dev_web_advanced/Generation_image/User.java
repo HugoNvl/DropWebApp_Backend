@@ -23,8 +23,8 @@ public class User implements Serializable {
     private String mail_adress;
     private boolean connected;
 
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
-    private List<Collection> collections_created;
+    //@OneToMany(mappedBy = "creator", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    //private List<Collection> collections_created;
     
     public Long getId() {
         return Id;
@@ -62,11 +62,11 @@ public class User implements Serializable {
     }
     public void setImages(Set<Image> list_images) {
         images_created = list_images;
-    }*/
+    }
     public List<Collection> getCollections() {
         return collections_created;
     }
     public void setCollections(List<Collection> list_collections) {
         collections_created = list_collections;
-    }    
+    } */   
 }

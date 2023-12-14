@@ -1,9 +1,9 @@
 package projet.dev_web_advanced.Generation_image;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import java.util.List;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +30,22 @@ public class UserDAO {
 
     public void deleteUser(User u) {
         Session session = this.sessionFactory.getCurrentSession();
+        Query<Image> q = session.createQuery("FROM Image i WHERE i.creator.id = :user_id", Image.class);
+        q.setParameter("user_id", u.getId());
+        List<Image> list_image = q.getResultList();
+        for( Image image : list_image) {
+            if(image.isVisible()){
+                image.setCreator(getUser(1L));
+                session.merge(image);
+            } else {
+                session.delete(image);
+            }
+        }
+        Query<Collection> query = session.createQuery("FROM Collection c WHERE c.creator.id = :user_id", Collection.class);
+        query.setParameter("user_id", u.getId());
+        for(Collection c : query.getResultList()) {
+            session.delete(c);
+        }
         session.delete(u);
     }
 

@@ -38,6 +38,17 @@ public class ImageController {
         }
     }
 
+    @PostMapping("/api/image/getImagesCommunity")
+    public ResponseEntity<List<Image>> getImagesCommunity() {
+        List<Image> list_images = new ArrayList<Image>(); 
+        for(Image i : dao.getAllImages()) {
+            if(i.isVisible()) {
+                list_images.add(i);
+            }
+        }
+        return ResponseEntity.ok(list_images);
+    }
+
     @PostMapping(value = "/api/image/setImage")
     public ResponseEntity<Image> setImage(@RequestBody Image i) {
         dao.modifyImage(i);
@@ -168,7 +179,6 @@ public class ImageController {
                 dao.createImage(newImage);
                 images.add(newImage);
             }
-            System.out.println(images);
             return ResponseEntity.ok(images);
 
         } catch (

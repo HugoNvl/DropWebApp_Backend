@@ -51,6 +51,12 @@ public class ImageDAO {
         return q.getResultList();
     }
 
+    public List<Image> getAllImages() {
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<Image> q = session.createQuery("FROM Image", Image.class);
+        return q.getResultList();
+    }
+
     public Image getImage(Long Id) {
         Session session = this.sessionFactory.getCurrentSession();
         Query<Image> q = session.createQuery("FROM Image i WHERE i.id = :id", Image.class);
