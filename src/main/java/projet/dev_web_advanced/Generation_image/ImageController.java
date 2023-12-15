@@ -27,9 +27,11 @@ public class ImageController {
     @Autowired
     private CollectionDAO collection_DAO = new CollectionDAO();
 
+    public record FormulaireGetImage(Number id){}
+
     @PostMapping("/api/image/getImage")
-    public ResponseEntity<Image> getImage(@RequestBody Long id) {
-        Image i = dao.getImage(id);
+    public ResponseEntity<Image> getImage(@RequestBody FormulaireGetImage form) {
+        Image i = dao.getImage(Long.parseLong(form.id.toString()));
 
         if (i != null) {
             return ResponseEntity.ok(i);
@@ -50,8 +52,12 @@ public class ImageController {
         return ResponseEntity.ok(list_images);
     }
 
+    public record FormulaireSet(Number id, boolean isVisible){}
+
     @PostMapping(value = "/api/image/setImage")
-    public ResponseEntity<Image> setImage(@RequestBody Image i) {
+    public ResponseEntity<Image> setImage(@RequestBody FormulaireSet form) {
+        Image i = dao.getImage(Long.parseLong(form.id.toString()));
+        i.setVisible(form.isVisible);
         dao.modifyImage(i);
         Image imageUpdated = dao.getImage(i.getId());
         if (imageUpdated != null) {
@@ -93,10 +99,16 @@ public class ImageController {
         }
     }
 
-    public record FormulaireEnvoie(String userID, String instruction,
-            ArrayList<String> selectedButtons, Number imageWidth, Number imageHeight, String seed,
-            Number generationSteps, Number guidanceScale) {
-    }
+    public record FormulaireEnvoie(
+        String userID,
+        String instruction,
+        ArrayList<String> selectedButtons,
+        Number imageWidth,
+        Number imageHeight,
+        String seed,
+        Number generationSteps,
+        Number guidanceScale
+        ) {}
 
     @PostMapping(value = "/api/image/generate")
     public ResponseEntity<List<Image>> generateImages(@RequestBody FormulaireEnvoie formulaireEnvoi) {
